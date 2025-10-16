@@ -81,7 +81,7 @@ function showWeather(data){
 
     forecastday.forEach(day => {
         const div3 = document.createElement('div')
-        div3.classList.add('flex-col', 'flex', 'items-center', 'text-white', 'text-xl', 'font-semibold', 'rounded-xl', 'bg-blue-200/50', 'w-50', 'gap-10', 'p-3', 'cursor-pointer')
+        div3.classList.add('flex-col', 'flex', 'items-center', 'text-white', 'text-xl', 'font-semibold', 'rounded-xl', 'bg-blue-200/50', 'w-65', 'gap-10', 'p-3', 'cursor-pointer')
 
         const p1 = document.createElement('p')
         p1.textContent = `${day.weekday}`
@@ -107,8 +107,8 @@ function showWeather(data){
         const div_temp2 = document.createElement('div')
         div_temp2.textContent = `Макс: ${day.maxTemp}°C`
 
-        div4.appendChild(div_temp1)
         div4.appendChild(div_temp2)
+        div4.appendChild(div_temp1)
 
         div3.appendChild(div4)
 
@@ -116,3 +116,12 @@ function showWeather(data){
     })
     weatherBlock.appendChild(main)
 }
+
+window.addEventListener('load', () => {
+    navigator.geolocation.getCurrentPosition(
+        ({coords: { latitude, longitude } }) => {
+            const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&units=metric&lang=ua&appid=ade310982514026925929cc901575642`;
+            fetchWeatherByCityName(url)
+        }
+    )
+})
