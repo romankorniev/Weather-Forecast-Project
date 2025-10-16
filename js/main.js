@@ -4,8 +4,11 @@ const weatherBlock = document.getElementById('weather-block')
 
 function generateURL(){
     const cityName = document.getElementById('cityName')
-    if (cityName.value.length === 0){
-        cityName.style.borderColor = 'red'
+    
+    if (cityName.value.trim().length === 0){
+        cityName.classList.add('input-error')
+
+        setTimeout(() => cityName.classList.remove('input-error'), 300)
     } else {
         const city = cityName.value
         const url = `http://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&lang=ua&appid=ade310982514026925929cc901575642`
@@ -32,6 +35,7 @@ function showWeather(data){
     const headerDiv = document.createElement('div');
     const h1 = document.createElement('h1')
     h1.textContent = `Погода у місті ${data.city.name} на ${new Date().toLocaleDateString()}`
+    h1.classList.add('text-white', 'text-3xl', 'font-bold', 'text-center', 'm-10')
     headerDiv.appendChild(h1)
     weatherBlock.appendChild(headerDiv);
 
@@ -56,11 +60,15 @@ function showWeather(data){
     const forecastday = Object.values(days).map(day =>{
         const minTemp = Math.min (...day.temps).toFixed(1)
         const maxTemp = Math.max (...day.temps).toFixed(1)
-        const weekday = day.date.toLocaleDateString('uk-UA', { weekday: 'long'})
+        let weekday = day.date.toLocaleDateString('uk-UA', { weekday: 'long'})
         const dayNum = day.date.getDate();
-        const month = day.date.toLocaleDateString('uk-UA', { month: 'long' });
+        let month = day.date.toLocaleDateString('uk-UA', { month: 'long' });
         const icon = day.icons[Math.floor(day.icons.length / 2)];
+        weekday = weekday.charAt(0).toUpperCase() + weekday.slice(1)
+        month = month.charAt(0).toUpperCase() + month.slice(1)
         return { weekday, dayNum, month, minTemp, maxTemp, icon }
+
+        
     })
 
     console.log(forecastday)
@@ -68,10 +76,12 @@ function showWeather(data){
     const main = document.createElement('main')
 
     const div2 = document.createElement('div')
+    div2.classList.add('flex', 'flex-row', 'justify-evenly')
     main.appendChild(div2)
 
     forecastday.forEach(day => {
         const div3 = document.createElement('div')
+        div3.classList.add('flex-col', 'flex', 'items-center', 'text-white', 'text-xl', 'font-semibold', 'rounded-xl', 'bg-blue-200/50', 'w-50', 'gap-10', 'p-3', 'cursor-pointer')
 
         const p1 = document.createElement('p')
         p1.textContent = `${day.weekday}`
@@ -86,10 +96,11 @@ function showWeather(data){
         div3.appendChild(p3)
 
         const img = document.createElement('img')
-        img.src = `${day.icon}`
+        img.src = `https://openweathermap.org/img/wn/${day.icon}@2x.png`
         div3.appendChild(img)
 
         const div4 = document.createElement('div')
+        div4.classList.add('flex-col', 'flex', 'items-center')
 
         const div_temp1 = document.createElement('div')
         div_temp1.textContent = `Мін: ${day.minTemp}°C`
