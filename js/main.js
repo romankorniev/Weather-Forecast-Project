@@ -58,17 +58,15 @@ function showWeather(data){
     });
 
     const forecastday = Object.values(days).map(day =>{
-        const minTemp = Math.min (...day.temps).toFixed(1)
-        const maxTemp = Math.max (...day.temps).toFixed(1)
-        let weekday = day.date.toLocaleDateString('uk-UA', { weekday: 'long'})
-        const dayNum = day.date.getDate();
-        let month = day.date.toLocaleDateString('uk-UA', { month: 'long' });
-        const icon = day.icons[Math.floor(day.icons.length / 2)];
-        weekday = weekday.charAt(0).toUpperCase() + weekday.slice(1)
-        month = month.charAt(0).toUpperCase() + month.slice(1)
-        return { weekday, dayNum, month, minTemp, maxTemp, icon }
-
-        
+    const minTemp = Math.min (...day.temps).toFixed(1)
+    const maxTemp = Math.max (...day.temps).toFixed(1)
+    let weekday = day.date.toLocaleDateString('uk-UA', { weekday: 'long'})
+    const dayNum = day.date.getDate();
+    let month = day.date.toLocaleDateString('uk-UA', { month: 'long' });
+    const icon = day.icons[Math.floor(day.icons.length / 2)];
+    weekday = weekday.charAt(0).toUpperCase() + weekday.slice(1)
+    month = month.charAt(0).toUpperCase() + month.slice(1)
+    return { weekday, dayNum, month, minTemp, maxTemp, icon }    
     })
 
     console.log(forecastday)
@@ -113,15 +111,11 @@ function showWeather(data){
         div3.appendChild(div4)
 
         div2.appendChild(div3)
+
+        div3.addEventListener('click', (e) => {
+        console.log(e.target)
     })
+    })
+
     weatherBlock.appendChild(main)
 }
-
-window.addEventListener('load', () => {
-    navigator.geolocation.getCurrentPosition(
-        ({coords: { latitude, longitude } }) => {
-            const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&units=metric&lang=ua&appid=ade310982514026925929cc901575642`;
-            fetchWeatherByCityName(url)
-        }
-    )
-})
