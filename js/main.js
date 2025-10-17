@@ -3,15 +3,25 @@ window.addEventListener('keypress', e => e.key === 'Enter' && generateURL())
 document.getElementById('search').addEventListener('click', generateURL)
 const weatherBlock = document.getElementById('weather-block')
 
-function getLocation(){
-    if (navigator.geolocation){
-        navigator.geolocation.getCurrentPosition(position => {
-            const lat = position.coords.latitude
-            const lon = position.coords.longitude
-            const url = `http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&lang=ua&appid=ade310982514026925929cc901575642`
-            fetchWeatherByCityName(url)
-        })
+function getLocation() {
+    if (!navigator.geolocation) {
+        alert('Ваш браузер не підтримує геолокацію')
+        return
     }
+
+    navigator.geolocation.getCurrentPosition(
+        pos => {
+            const { latitude, longitude } = pos.coords
+            const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&units=metric&lang=ua&appid=ade310982514026925929cc901575642`
+            fetchWeatherByCityName(url)
+        },
+        err => {
+            console.warn(`Помилка геолокації (${err.code}): ${err.message}`)
+            const defaultCity = 'Kyiv'
+            const url = `https://api.openweathermap.org/data/2.5/forecast?q=${defaultCity}&units=metric&lang=ua&appid=ade310982514026925929cc901575642`
+            fetchWeatherByCityName(url)
+        }
+    )
 }
 
 function generateURL(){
@@ -50,7 +60,7 @@ function showWeather(data){
     h1.classList.add('text-white', 'text-3xl', 'font-bold', 'text-center', 'm-10')
 
     const h1_p = document.createElement('p')
-    h1_p.textContent = ` Схід сонця о ${new Date(data.city.sunrise * 1000).toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' })}. Захід соня о ${new Date(data.city.sunset * 1000).toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' })}.`
+    h1_p.textContent = ` Схід сонця о ${new Date(data.city.sunrise * 1000).toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' })}. Захід сонця о ${new Date(data.city.sunset * 1000).toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' })}.`
     h1.appendChild(h1_p)
 
     headerDiv.appendChild(h1)
@@ -81,8 +91,7 @@ function showWeather(data){
             humidity: item.main.humidity,
             pressure: item.main.pressure,
             tempFeels: item.main.feels_like.toFixed(1),
-            tempMax: item.main.temp_max.toFixed(1),
-            tempMin: item.main.temp_min.toFixed(1),
+            temp: item.main.temp.toFixed(1),
             description: item.weather[0].description,
             icon: item.weather[0].icon
         })
@@ -178,13 +187,9 @@ function showDetails(day){
         time.textContent = `${detail.time}`
         detailDiv.appendChild(time)
 
-        const tempMax = document.createElement('p')
-        tempMax.textContent = `Макс: ${detail.tempMax}°C`
-        detailDiv.appendChild(tempMax)
-        
-        const tempMin = document.createElement('p')
-        tempMin.textContent = `Мін: ${detail.tempMin}°C`
-        detailDiv.appendChild(tempMin)  
+        const temp = document.createElement('p')
+        temp.textContent = `Температура: ${detail.temp}°C`
+        detailDiv.appendChild(temp)
 
         const tempFeels = document.createElement('p')
         tempFeels.textContent = `Відчувається як: ${detail.tempFeels}°C`
