@@ -36,6 +36,11 @@ function showWeather(data){
     const h1 = document.createElement('h1')
     h1.textContent = `Погода у місті ${data.city.name} на ${new Date().toLocaleDateString()}`
     h1.classList.add('text-white', 'text-3xl', 'font-bold', 'text-center', 'm-10')
+
+    const h1_p = document.createElement('p')
+    h1_p.textContent = ` Схід сонця о ${new Date(data.city.sunrise * 1000).toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' })}. Захід соня о ${new Date(data.city.sunset * 1000).toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' })}.`
+    h1.appendChild(h1_p)
+
     headerDiv.appendChild(h1)
     weatherBlock.appendChild(headerDiv);
 
@@ -44,29 +49,48 @@ function showWeather(data){
     data.list.forEach(item => {
         const date = new Date(item.dt_txt)
         const dayKey = date.toLocaleDateString('uk-UA', { day: '2-digit', month: 'long'}) 
+        const hour = date.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' })
 
         if(!days[dayKey]){
             days[dayKey] = {
                 date,
+                sunrise: new Date(data.city.sunrise * 1000),
+                sunset: new Date(data.city.sunset * 1000),
                 temps: [],
-                icons: []
+                icons: [],
+                details: []
             }
         }
 
         days[dayKey].temps.push(item.main.temp)
         days[dayKey].icons.push(item.weather[0].icon)
+        days[dayKey].details.push({
+            time: hour,
+            humidity: item.main.humidity,
+            pressure: item.main.pressure,
+            tempFeels: item.main.feels_like.toFixed(1),
+            tempMax: item.main.temp_max.toFixed(1),
+            tempMin: item.main.temp_min.toFixed(1),
+            description: item.weather[0].description,
+            icon: item.weather[0].icon
+        })
     });
 
+    console.log(days);
+    
+
     const forecastday = Object.values(days).map(day =>{
-    const minTemp = Math.min (...day.temps).toFixed(1)
-    const maxTemp = Math.max (...day.temps).toFixed(1)
-    let weekday = day.date.toLocaleDateString('uk-UA', { weekday: 'long'})
-    const dayNum = day.date.getDate();
-    let month = day.date.toLocaleDateString('uk-UA', { month: 'long' });
-    const icon = day.icons[Math.floor(day.icons.length / 2)];
-    weekday = weekday.charAt(0).toUpperCase() + weekday.slice(1)
-    month = month.charAt(0).toUpperCase() + month.slice(1)
-    return { weekday, dayNum, month, minTemp, maxTemp, icon }    
+        const minTemp = Math.min (...day.temps).toFixed(1)
+        const maxTemp = Math.max (...day.temps).toFixed(1)
+        let weekday = day.date.toLocaleDateString('uk-UA', { weekday: 'long'})
+        const dayNum = day.date.getDate();
+        let month = day.date.toLocaleDateString('uk-UA', { month: 'long' });
+        const icon = day.icons[Math.floor(day.icons.length / 2)];
+        weekday = weekday.charAt(0).toUpperCase() + weekday.slice(1)
+        month = month.charAt(0).toUpperCase() + month.slice(1)
+        const sunrise = day.sunrise
+        const sunset = day.sunset
+        return { weekday, dayNum, month, minTemp, maxTemp, icon, details: day.details, sunrise, sunset }    
     })
 
     console.log(forecastday)
@@ -79,7 +103,7 @@ function showWeather(data){
 
     forecastday.forEach(day => {
         const div3 = document.createElement('div')
-        div3.classList.add('flex-col', 'flex', 'items-center', 'text-white', 'text-xl', 'font-semibold', 'rounded-xl', 'bg-blue-200/50', 'w-65', 'gap-10', 'p-3', 'cursor-pointer')
+        div3.classList.add('flex-col', 'flex', 'items-center', 'text-white', 'text-xl', 'font-semibold', 'rounded-xl', 'bg-blue-200/50', 'w-65', 'gap-2', 'p-3', 'cursor-pointer', 'mx-3')
 
         const p1 = document.createElement('p')
         p1.textContent = `${day.weekday}`
@@ -92,6 +116,8 @@ function showWeather(data){
         const p3 = document.createElement('p')
         p3.textContent = `${day.month}`
         div3.appendChild(p3)
+
+        div3.addEventListener('click', () => showDetails(day))
 
         const img = document.createElement('img')
         img.src = `https://openweathermap.org/img/wn/${day.icon}@2x.png`
@@ -111,11 +137,56 @@ function showWeather(data){
         div3.appendChild(div4)
 
         div2.appendChild(div3)
-
-        div3.addEventListener('click', (e) => {
-        console.log(e.target)
     })
-    })
-
     weatherBlock.appendChild(main)
+}
+
+function showDetails(day){
+    const detailsBlock = document.createElement('div')
+    
+    const title = document.createElement('h2')
+    title.textContent = `Огляд на ${day.weekday}, ${day.dayNum} ${day.month}`
+    detailsBlock.appendChild(title)
+
+    const renderDetails = document.createElement('div')
+    detailsBlock.appendChild(renderDetails)
+    day.details.forEach(detail => {
+        const detailDiv = document.createElement('div')
+
+        const time = document.createElement('p')
+        time.textContent = `${detail.time}`
+        detailDiv.appendChild(time)
+
+        const tempMax = document.createElement('p')
+        tempMax.textContent = `Макс: ${detail.tempMax}°C`
+        detailDiv.appendChild(tempMax)
+        
+        const tempMin = document.createElement('p')
+        tempMin.textContent = `Мін: ${detail.tempMin}°C`
+        detailDiv.appendChild(tempMin)  
+
+        const tempFeels = document.createElement('p')
+        tempFeels.textContent = `Відчувається як: ${detail.tempFeels}°C`
+        detailDiv.appendChild(tempFeels)        
+
+        const pressure = document.createElement('p')
+        pressure.textContent = `Тиск: ${detail.pressure} hPa`
+        detailDiv.appendChild(pressure)
+
+        const humidity = document.createElement('p')
+        humidity.textContent = `Вологість: ${detail.humidity}%`
+        detailDiv.appendChild(humidity)
+
+        const icon = document.createElement('img')
+        icon.src = `https://openweathermap.org/img/wn/${detail.icon}@2x.png`
+        detailDiv.appendChild(icon)
+
+        const description = document.createElement('p')
+        description.textContent = `${detail.description.charAt(0).toUpperCase() + detail.description.slice(1)}`
+        detailDiv.appendChild(description)
+    
+        renderDetails.appendChild(detailDiv)
+    })
+
+    weatherBlock.appendChild(detailsBlock)
 }
