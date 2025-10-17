@@ -1,6 +1,18 @@
+window.addEventListener('load', getLocation)
 window.addEventListener('keypress', e => e.key === 'Enter' && generateURL())
 document.getElementById('search').addEventListener('click', generateURL)
 const weatherBlock = document.getElementById('weather-block')
+
+function getLocation(){
+    if (navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(position => {
+            const lat = position.coords.latitude
+            const lon = position.coords.longitude
+            const url = `http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&lang=ua&appid=ade310982514026925929cc901575642`
+            fetchWeatherByCityName(url)
+        })
+    }
+}
 
 function generateURL(){
     const cityName = document.getElementById('cityName')
