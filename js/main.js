@@ -142,16 +142,25 @@ function showWeather(data){
 }
 
 function showDetails(day){
+    const oldDetails = document.getElementById('details-block');
+    if (oldDetails) oldDetails.remove()
+
     const detailsBlock = document.createElement('div')
-    
+    detailsBlock.id = 'details-block'
+    detailsBlock.classList.add('bg-blue-300/50', 'mx-3', 'rounded-xl', 'm-5', 'mx-9')
+
     const title = document.createElement('h2')
     title.textContent = `Огляд на ${day.weekday}, ${day.dayNum} ${day.month}`
+    title.classList.add('text-2xl', 'font-bold', 'text-white', 'p-3', 'text-xl')
     detailsBlock.appendChild(title)
 
     const renderDetails = document.createElement('div')
+    renderDetails.classList.add('flex', 'flex-row', 'justify-evenly', 'mb-5', 'text-white', 'font-medium', 'rounded-xl', 'bg-blue-200/50', 'flex-wrap', 'items-center')
     detailsBlock.appendChild(renderDetails)
     day.details.forEach(detail => {
+
         const detailDiv = document.createElement('div')
+        detailDiv.classList.add('flex', 'flex-col', 'items-center', 'rounded-lg', 'cursor-pointer', 'hover:shadow-xl/20', 'transition-all', 'duration-200', 'text-lg', 'm-3', 'p-2')
 
         const time = document.createElement('p')
         time.textContent = `${detail.time}`
